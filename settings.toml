@@ -1,0 +1,4 @@
+[default]
+DB_URL="sqlite:///db.sqlite"
+[development]
+[production]
