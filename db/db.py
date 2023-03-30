@@ -1,6 +1,6 @@
 import databases
-import ormar
 import sqlalchemy
+import ormar
 from utils.config import settings
 
 database = databases.Database(settings.DB_URL)
