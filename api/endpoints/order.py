@@ -43,4 +43,3 @@ async def update_order_info(pk: UUID,
 async def delete_order(pk: UUID):
     instance = await get_order_by_id(pk)
     return await instance.delete()
-# TODO дописать методы вызова запросов!
