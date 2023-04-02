@@ -31,6 +31,6 @@ class Order(ormar.Model):
     date_start: datetime.date = ormar.Date()
     date_end: datetime.date = ormar.Date()
     price: int = ormar.Integer()
-    material: MaterialTypeEnum = ormar.String(max_length=100, choices=MaterialTypeEnum)
+    material: MaterialTypeEnum = ormar.String(max_length=100, choices=MaterialTypeEnum, default=MaterialTypeEnum.abc)
     archive_path: str = ormar.String(max_length=100)
-    delivery_type: DeliveryTypeEnum = ormar.String(max_length=100, choices=DeliveryTypeEnum)
+    delivery_type: DeliveryTypeEnum = ormar.String(max_length=100, choices=DeliveryTypeEnum, default=DeliveryTypeEnum.sdek)
