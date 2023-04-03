@@ -21,15 +21,13 @@ class MaterialTypeEnum(Enum):
 
 class Order(ormar.Model):
     class Meta(BaseMeta):
-        tablename = "order"
+        tablename = "orders"
 
     id: UUID = ormar.UUID(primary_key=True,
                           uuid_format="string",
                           default=uuid4)
     customer: UUID = ormar.ForeignKey(Customer)
     order_date: datetime.date = ormar.Date()
-    date_start: datetime.date = ormar.Date()
-    date_end: datetime.date = ormar.Date()
     price: int = ormar.Integer()
     material: MaterialTypeEnum = ormar.String(max_length=100, choices=MaterialTypeEnum, default=MaterialTypeEnum.abc)
     archive_path: str = ormar.String(max_length=100)

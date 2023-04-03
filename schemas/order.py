@@ -19,8 +19,6 @@ OrderCreateRequestSchema = Order.get_pydantic(
 
 class OrderUpdateRequestSchema(OrderBaseRequestSchema):
     order_date: Optional[date] = date.today()
-    date_start: Optional[date] = date.today()
-    date_end: Optional[date] = date.today()
     price: Optional[int] = 0
     material: Optional[MaterialTypeEnum] = MaterialTypeEnum.abc
     archive_path: Optional[Path] = Path.cwd()

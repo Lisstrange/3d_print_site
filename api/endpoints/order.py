@@ -1,5 +1,5 @@
 from uuid import UUID, uuid4
-
+from fastapi import File, UploadFile, FastAPI
 from fastapi.routing import APIRouter
 from models import Order
 from typing import List
@@ -23,7 +23,11 @@ async def get_order_by_id(pk: UUID):
 
 @router.post("/",
              response_model=Order)
-async def create_order(order: schemas.OrderCreateRequestSchema, customer_id: UUID):
+async def create_order(order: schemas.OrderCreateRequestSchema,
+                       customer_id: UUID,
+                       upload_file: File(...)):
+    content = await upload_file.read()
+
     customer = await get_customer_by_id(customer_id)
     return await Order.objects.create(customer=customer, **order.dict())
 
