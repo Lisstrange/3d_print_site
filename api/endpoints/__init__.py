@@ -1,2 +1,3 @@
-from . import (customer,
-               order)
+from . import (user,
+               order,
+               auth)

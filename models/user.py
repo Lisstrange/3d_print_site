@@ -3,15 +3,17 @@ import ormar
 from uuid import UUID, uuid4
 
 
-class Customer(ormar.Model):
+class User(ormar.Model):
     class Meta(BaseMeta):
-        tablename = "customers"
+        tablename = "users"
 
     id: UUID = ormar.UUID(
         primary_key=True,
         default=uuid4,
         uuid_format="string"
     )
+    email: str = ormar.String(max_length=100, nullable=False, default="user@example.com")
+    hashed_password: str = ormar.String(max_length=1000, nullable=False)
     given_name: str = ormar.String(max_length=100, default="Ivan")
     family_name: str = ormar.String(max_length=100, default="Ivanov")
     patronymic: str = ormar.String(max_length=100, default="Jovanovich")
@@ -19,4 +21,4 @@ class Customer(ormar.Model):
     city: str = ormar.String(max_length=100, default="Your city")
     street: str = ormar.String(max_length=100, default="Your street")
     home: str = ormar.String(max_length=100, default="home number and building num")
-    flat: str = ormar.Integer(max_length=100, default=0)
+    flat: str = ormar.Integer(default=0)

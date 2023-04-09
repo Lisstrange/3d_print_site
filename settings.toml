@@ -1,5 +1,6 @@
 [default]
 DB_URL="sqlite:///db.sqlite"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 [development]
 DB_URL=""
 [production]

@@ -3,7 +3,7 @@ from enum import Enum
 import ormar
 from db import BaseMeta
 from uuid import UUID, uuid4
-from .customer import Customer
+from .user import User
 
 
 class DeliveryTypeEnum(Enum):
@@ -26,7 +26,7 @@ class Order(ormar.Model):
     id: UUID = ormar.UUID(primary_key=True,
                           uuid_format="string",
                           default=uuid4)
-    customer: UUID = ormar.ForeignKey(Customer)
+    user: UUID = ormar.ForeignKey(User)
     order_date: datetime.date = ormar.DateTime(default=datetime.now())
     price: int = ormar.Integer(default=0)
     material: MaterialTypeEnum = ormar.String(max_length=100,

@@ -13,7 +13,7 @@ OrderBaseRequestSchema = Order.get_pydantic(
 OrderBaseResponseSchema = Order.get_pydantic()
 
 OrderCreateRequestSchema = Order.get_pydantic(
-    exclude={"id", "customer"}
+    exclude={"id", "user"}
 )
 
 

@@ -1,6 +1,6 @@
-from .customer import (CustomerBaseRequestSchema,
-                       CustomerBaseResponseSchema,
-                       CustomerCreateRequestSchema)
+from .user import (UserBaseRequestSchema,
+                   UserBaseResponseSchema,
+                   UserBaseRequestSchema)
 
 from .order import (OrderBaseResponseSchema,
                     OrderBaseRequestSchema,

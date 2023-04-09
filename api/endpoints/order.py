@@ -4,7 +4,7 @@ from fastapi.routing import APIRouter
 from models import Order
 from typing import List
 import schemas
-from .customer import get_customer_by_id
+from .user import get_user_by_id
 
 router = APIRouter()
 
@@ -22,14 +22,15 @@ async def get_order_by_id(pk: UUID):
 
 
 @router.post("/",
-             response_model=Order)
+             response_model=schemas.OrderBaseResponseSchema)
 async def create_order(order: schemas.OrderCreateRequestSchema,
-                       customer_id: UUID,
-                       upload_file: File(...)):
-    content = await upload_file.read()
+                       user_id: UUID
+                       # TODO добавить звагрузку файа     content = await upload_file.read()
+                       # И сгенерить норм схему на его основе
+                       ):
 
-    customer = await get_customer_by_id(customer_id)
-    return await Order.objects.create(customer=customer, **order.dict())
+    instance = await get_user_by_id(user_id)
+    return await Order.objects.create(user=instance, **order.dict())
 
 
 @router.patch("/{id}",

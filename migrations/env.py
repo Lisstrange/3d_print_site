@@ -5,7 +5,7 @@ import sys
 import os
 from db import BaseMeta
 
-from models import (Customer, Order)
+from models import (User, Order)
 
 # add app folder to system path (alternative is running it from parent folder with python -m ...)
 myPath = os.path.dirname(os.path.abspath(__file__))
