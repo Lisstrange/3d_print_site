@@ -1,5 +1,5 @@
 from models import User
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from typing import Optional
 
@@ -11,6 +11,19 @@ UserBaseRequestSchema = User.get_pydantic(
 )
 
 UserBaseResponseSchema = User.get_pydantic()
+
+
+class User(BaseModel):
+    username: str
+    email: EmailStr
+    avatar: str
+
+
+class UserCreate(User):
+    token: str
+class Token(BaseModel):
+    id: int
+    token: str
 
 
 class UserUpdateRequestSchema(UserBaseRequestSchema):

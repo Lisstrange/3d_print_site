@@ -1,6 +1,8 @@
 from .user import (UserBaseRequestSchema,
                    UserBaseResponseSchema,
-                   UserBaseRequestSchema)
+                   UserBaseRequestSchema,
+                   UserCreate,
+                   Token)
 
 from .order import (OrderBaseResponseSchema,
                     OrderBaseRequestSchema,
