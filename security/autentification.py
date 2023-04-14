@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from utils import settings
-
+from authlib.jose import jwt
 access_token_jwt_subject = "access"
 
 
@@ -22,4 +22,5 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         expire = datetime.utcnow() + timedelta(minutes=25)
     to_encode.update({"exp": expire,
                       "sub": access_token_jwt_subject})
-    encoded_jwt = # TODO Написать через authlib jwt.encode()...  Время 41:01
+    # TODO поменять на правильную реализацию, ссылка на пример:  https://docs.authlib.org/en/latest/jose/jwt.html?highlight=jwt#json-web-token-jwt
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
