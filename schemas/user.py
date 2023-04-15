@@ -14,9 +14,7 @@ UserBaseResponseSchema = User.get_pydantic()
 
 
 class User(BaseModel):
-    username: str
     email: EmailStr
-    avatar: str
 
 
 class UserCreate(User):
