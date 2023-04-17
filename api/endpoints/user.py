@@ -4,7 +4,7 @@ from fastapi.routing import APIRouter
 import schemas
 import models
 from uuid import UUID
-from security.hasher import Hasher
+# from security.hasher import Hasher
 router = APIRouter()
 
 
@@ -15,15 +15,15 @@ router = APIRouter()
 async def get_all_users():
     return await User.objects.all()
 
-
-@router.post(
-    "/",
-    response_model=schemas.UserBaseResponseSchema
-)
-async def create_user(user: schemas.UserBaseRequestSchema):
-    user.hashed_password = Hasher.get_password_hash(user.hashed_password)
-    return await models.User.objects.create(**user.dict())
-
+#
+# @router.post(
+#     "/",
+#     response_model=schemas.UserBaseResponseSchema
+# )
+# async def create_user(user: schemas.UserBaseRequestSchema):
+#     user.hashed_password = Hasher.get_password_hash(user.hashed_password)
+#     return await models.User.objects.create(**user.dict())
+#
 
 @router.get(
     "/{id}",
@@ -63,7 +63,7 @@ async def delete_user(pk: UUID):
 from datetime import datetime, timedelta
 from typing import Annotated
 
-from security.hasher import Hasher
+# from security.hasher import Hasher
 from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 # import jwt
@@ -89,13 +89,13 @@ async def get_user_by_email(email: str) -> User:
     return instance
 
 
-async def authenticate_user(email: str, password) -> User | None:
-    user = await get_user_by_email(email)
-    if not user:
-        return None
-    if not Hasher.verify_password(password, user.hashed_password):
-        return None
-    return user
+# async def authenticate_user(email: str, password) -> User | None:
+#     user = await get_user_by_email(email)
+#     if not user:
+#         return None
+#     if not Hasher.verify_password(password, user.hashed_password):
+#         return None
+#     return user
 #
 #
 # def create_access_token(data: dict, expires_delta: timedelta | None = None):
