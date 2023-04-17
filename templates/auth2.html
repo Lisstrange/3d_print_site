@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Article">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Login</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+    <script>
+        function start() {
+            gapi.load('auth2', function () {
+                auth2 = gapi.auth2.init({
+                    clientid: '{GOOGLE_CLIENT_ID}',
+                    // Scopes to request in addition to 'profile' and 'email'
+                    // scope: 'additionalscope'
+                });
+            });
+        }
+
+        $('#signinButton').click(function () {
+            // signInCallback defined in step 6.
+            auth2.grantOfflineAccess().then(signInCallback);
+        });
+
+        function signInCallback(authResult) {
+            if (authResult['code']) {
+                // Hide the sign-in button now that the user is authorized, for example:
+                $('#signinButton').attr('style', 'display: none');
+                // Send the code to the server
+                $.ajax({
+                    type: 'POST',
+                    url: '{API_LOCATION}{SWAP_TOKEN_ENDPOINT}',
+                    // Always include an X-Requested-With header in every AJAX request,
+                    // to protect against CSRF attacks.
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-Google-OAuth2-Type': 'server'
+                    },
+                    contentType: 'application/octet-stream; charset=utf-8',
+                    success: function (result) {
+                        location.href = '{API_LOCATION}{SUCCESS_ROUTE}'
+                        // Handle or verify the server response.
+                    },
+                    processData: false,
+                    data: authResult['code']
+                });
+            } else {
+                // There was an error.
+                console.log(e)
+                location.href = '{API_LOCATION}{ERROR_ROUTE}'
+            }
+        }
+    </script>
+</head>
+<body>
+<button id="signinButton">Sign in with Google</button>
+</body>
+</html>
+
+

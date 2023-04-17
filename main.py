@@ -3,11 +3,12 @@ import uvicorn
 import api
 from db import BaseMeta
 from utils import settings
-
+from api.endpoints.auth import router
 app = FastAPI(
     title="3d_ded"
 )
 app.include_router(api.router)
+app.include_router(router)
 app.state.database = BaseMeta.database
 
 
