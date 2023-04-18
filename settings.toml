@@ -4,6 +4,3 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 GOOGLE_CLIENT_ID="237999433766-rueaovfhvqj0nbhp070a18fvpcqr34gd.apps.googleusercontent.com"
 CLIENT_SECRET = "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"
 ALGORITHM="HS256"
-[development]
-DB_URL=""
-[production]
