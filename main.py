@@ -51,6 +51,7 @@ from authlib.integrations.starlette_client import OAuth
 
 # Initialize our OAuth instance from the client ID and client secret specified in our .env file
 
+
 @app.get('/')
 async def home(request: Request):
     # Try to get the user
@@ -77,6 +78,7 @@ CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 oauth.register(
     name='google',
     server_metadata_url=CONF_URL,
+    client_id=settings.GOOGLE_CLIENT_ID,
     client_kwargs={
         'scope': 'openid email profile'
     }
@@ -96,22 +98,25 @@ oauth.register(
 @app.get('/login', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def login(request: Request):
     # Redirect Google OAuth back to our application
-    redirect_uri = request.url_for('auth')
-
+    redirect_uri = "http://127.0.0.1:8000/auth"
+    #request.url_for('auth').__str__()
+    print(redirect_uri)
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
 @app.route('/auth')
 async def auth(request: Request):
+    print("START AUTH")
     # Perform Google OAuth
     token = await oauth.google.authorize_access_token(request)
+    print(token)
     user = await oauth.google.parse_id_token(request, token)
 
     # Save the user
     request.session['user'] = dict(user)
 
     return RedirectResponse(url='/')
-
+## Тут я остановился
 
 @app.get('/logout', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def logout(request: Request):
