@@ -76,7 +76,7 @@ oauth = OAuth(config)
 
 CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 oauth.register(
-    name='google',
+    name="google",
     server_metadata_url=CONF_URL,
     client_id=settings.GOOGLE_CLIENT_ID,
     client_kwargs={
@@ -98,19 +98,31 @@ oauth.register(
 @app.get('/login', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def login(request: Request):
     # Redirect Google OAuth back to our application
-    redirect_uri = "http://127.0.0.1:8000/auth"
-    #request.url_for('auth').__str__()
+    redirect_uri = request.url_for('auth').__str__()
     print(redirect_uri)
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    # state = "random_state_string"  # генерируем случайную строку состояния
+    # request.session['oauth_state'] = state  # сохраняем состояние в сессии
+    import secrets
+    csrf_token = secrets.token_hex(16)  # генерируем CSRF токен
+    print(f"CSRF GENERATED TOKEN = {csrf_token}")
+    request.session['csrf_token'] = csrf_token  # сохраняем CSRF токен в сессии
+    state = f"{csrf_token}:{request.url_for('auth')}"  # формируем строку состояния
+    print(f"STATE = {state}")
+    print(f"GET STATE = {request.get('state')}")
+    return await oauth.google.authorize_redirect(request, redirect_uri, state=state)
 
 
 @app.route('/auth')
 async def auth(request: Request):
     print("START AUTH")
     # Perform Google OAuth
-    token = await oauth.google.authorize_access_token(request)
+    print(request.session.get('oauth_state'))
+    token = await oauth.google.authorize_access_token(request, nonce=request.session.get('oauth_state'))
+    print("GOT TOKEN")
+    state = request.get('state')  # получаем состояние из запроса
     print(token)
-    user = await oauth.google.parse_id_token(request, token)
+    csrf_token, redirect_url = state.split(':')  # разделяем состояние на CSRF токен и URL для перенаправления
+    user = await oauth.google.parse_id_token(request, token, nonce=request.session.get('oauth_state'))
 
     # Save the user
     request.session['user'] = dict(user)
