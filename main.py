@@ -5,6 +5,8 @@ import api
 from api.endpoints.auth import router
 from db import BaseMeta
 from starlette.middleware.sessions import SessionMiddleware
+import os
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="3d_ded", docs_url=None, redoc_url=None
@@ -13,7 +15,8 @@ app.include_router(api.router)
 app.include_router(router)
 app.state.database = BaseMeta.database
 
-app.add_middleware(SessionMiddleware, secret_key='!secret')
+SECRET_KEY = os.environ.get("SECRET_KEY")
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 
 @app.on_event("startup")
@@ -47,26 +50,26 @@ from starlette.requests import Request
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 
-from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.starlette_client import OAuth, OAuthError
 
 # Initialize our OAuth instance from the client ID and client secret specified in our .env file
+
+import json
 
 
 @app.get('/')
 async def home(request: Request):
     # Try to get the user
     user = request.session.get('user')
-    if user is not None:
-        email = user['email']
+    if user:
+        data = json.dumps(user)
         html = (
-            f'<pre>Email: {email}</pre><br>'
-            '<a href="/docs">documentation</a><br>'
+            f'<pre>{data}</pre>'
             '<a href="/logout">logout</a>'
         )
         return HTMLResponse(html)
-
-    # Show the login link
     return HTMLResponse('<a href="/login">login</a>')
+
 
 # --- Google OAuth ---
 
@@ -78,57 +81,36 @@ CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 oauth.register(
     name="google",
     server_metadata_url=CONF_URL,
-    client_id=settings.GOOGLE_CLIENT_ID,
     client_kwargs={
         'scope': 'openid email profile'
     }
 )
-#
-# oauth.register(
-#     name="google",
-#     client_id=settings.GOOGLE_CLIENT_ID,
-#     client_secret=settings.CLIENT_SECRET,
-#     authorize_url="https://accounts.google.com/o/oauth2/auth",
-#     access_token_url="https://accounts.google.com/o/oauth2/token",
-#     api_base_url="https://www.googleapis.com/",
-#     client_kwargs={"scope": "nikita.a.lisovik@gmail.com"},
-#     server_metadata_url=CONF_URL,
-# )
+
+from pprint import pprint
+
 
 @app.get('/login', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def login(request: Request):
     # Redirect Google OAuth back to our application
     redirect_uri = request.url_for('auth').__str__()
-    print(redirect_uri)
-    # state = "random_state_string"  # генерируем случайную строку состояния
-    # request.session['oauth_state'] = state  # сохраняем состояние в сессии
-    import secrets
-    csrf_token = secrets.token_hex(16)  # генерируем CSRF токен
-    print(f"CSRF GENERATED TOKEN = {csrf_token}")
-    request.session['csrf_token'] = csrf_token  # сохраняем CSRF токен в сессии
-    state = f"{csrf_token}:{request.url_for('auth')}"  # формируем строку состояния
-    print(f"STATE = {state}")
-    print(f"GET STATE = {request.get('state')}")
-    return await oauth.google.authorize_redirect(request, redirect_uri, state=state)
+    pprint(request.__dict__)
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@app.route('/auth')
+@app.get('/auth')
 async def auth(request: Request):
     print("START AUTH")
-    # Perform Google OAuth
-    print(request.session.get('oauth_state'))
-    token = await oauth.google.authorize_access_token(request, nonce=request.session.get('oauth_state'))
-    print("GOT TOKEN")
-    state = request.get('state')  # получаем состояние из запроса
-    print(token)
-    csrf_token, redirect_url = state.split(':')  # разделяем состояние на CSRF токен и URL для перенаправления
-    user = await oauth.google.parse_id_token(request, token, nonce=request.session.get('oauth_state'))
-
-    # Save the user
-    request.session['user'] = dict(user)
-
+    try:
+        pprint(request.__dict__)
+        token = await oauth.google.authorize_access_token(request)
+        pprint(token)
+    except OAuthError as error:
+        return HTMLResponse(f'<h1>{error.error}</h1>')
+    user = token.get('userinfo')
+    if user:
+        request.session['user'] = dict(user)
     return RedirectResponse(url='/')
-## Тут я остановился
+
 
 @app.get('/logout', tags=['authentication'])  # Tag it as "authentication" for our docs
 async def logout(request: Request):
@@ -139,32 +121,6 @@ async def logout(request: Request):
 
 
 # --- Dependencies ---
-
-
-# Try to get the logged in user
-async def get_user(request: Request) -> Optional[dict]:
-    user = request.session.get('user')
-    if user is not None:
-        return user
-    else:
-        raise HTTPException(status_code=403, detail='Could not validate credentials.')
-
-    return None
-
-
-# --- Documentation ---
-
-
-@app.route('/openapi.json')
-async def get_open_api_endpoint(request: Request, user: Optional[dict] = Depends(get_user)):  # This dependency protects our endpoint!
-    response = JSONResponse(get_openapi(title='FastAPI', version=1, routes=app.routes))
-    return response
-
-
-@app.get('/docs', tags=['documentation'])  # Tag it as "documentation" for our docs
-async def get_documentation(request: Request, user: Optional[dict] = Depends(get_user)):  # This dependency protects our endpoint!
-    response = get_swagger_ui_html(openapi_url='/openapi.json', title='Documentation')
-    return response
 
 
 if __name__ == "__main__":
